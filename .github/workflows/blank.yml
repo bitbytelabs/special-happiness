@@ -11,13 +11,11 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y git python3 python3-pip build-essential
+          sudo apt install -y git python3 python3-venv python3-pip build-essential
 
-      - name: Clone fishtest worker
+      - name: Clone fishtest
         run: |
           git clone https://github.com/official-stockfish/fishtest.git
-          cd fishtest/worker
-          pip3 install -r requirements.txt
 
       - name: Run worker
         env:
