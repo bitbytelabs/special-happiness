@@ -1,0 +1,31 @@
+name: Fishtest Worker
+
+on:
+  workflow_dispatch:
+
+jobs:
+  fishtest:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y git python3 python3-pip build-essential
+
+      - name: Clone fishtest worker
+        run: |
+          git clone https://github.com/official-stockfish/fishtest.git
+          cd fishtest/worker
+          pip3 install -r requirements.txt
+
+      - name: Run worker
+        env:
+          FISHTEST_USER: ${{ secrets.FISHTEST_USER }}
+          FISHTEST_PASS: ${{ secrets.FISHTEST_PASS }}
+        run: |
+          cd fishtest/worker
+          python3 worker.py \
+            --username $FISHTEST_USER \
+            --password $FISHTEST_PASS \
+            --concurrency $(nproc)
