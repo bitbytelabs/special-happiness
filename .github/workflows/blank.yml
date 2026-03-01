@@ -14,15 +14,15 @@ jobs:
           sudo apt install -y \
             git \
             python3 \
-            python3-venv \
             python3-pip \
+            python3-venv \
             build-essential \
             g++ \
             clang \
             llvm \
             make
 
-      - name: Clone Fishtest repository
+      - name: Clone Fishtest repository (if not already present)
         run: |
           if [ ! -d "fishtest" ]; then
             git clone https://github.com/official-stockfish/fishtest.git
@@ -35,21 +35,17 @@ jobs:
         run: |
           cd fishtest/worker
 
-          # Safe concurrency: leave 1 CPU core free
+          # Detect cores and leave 1 core free
           CORES=$(nproc)
           SAFE_CORES=$((CORES-1))
-          if [ $SAFE_CORES -lt 1 ]; then
+          if [ "$SAFE_CORES" -lt 1 ]; then
             SAFE_CORES=1
           fi
 
-          # Use 80% of available RAM
-          MEMORY=$(free -m | awk '/Mem:/ {print int($2*0.8)}')
-
           echo "Detected $CORES cores, using $SAFE_CORES"
-          echo "Using ${MEMORY}MB RAM"
 
+          # Run worker (USERNAME and PASSWORD are positional args)
           python3 worker.py \
-            --username "$FISHTEST_USER" \
-            --password "$FISHTEST_PASS" \
-            --concurrency "$SAFE_CORES" \
-            --memory "$MEMORY"
+            "$FISHTEST_USER" \
+            "$FISHTEST_PASS" \
+            --concurrency "$SAFE_CORES"
